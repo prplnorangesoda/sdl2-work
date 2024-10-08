@@ -97,6 +97,9 @@ fn main() {
                 dbg!(event);
             }));
             handler.register_handler_keyup(Box::new(move |event| {
+                if event.repeat {
+                    return;
+                }
                 let mut numb = ref2.lock().expect("should be possible to grab state");
                 *numb -= 1;
                 // whatever
@@ -118,7 +121,6 @@ fn main() {
                 }
                 update(&state)
             };
-            dbg!(&state);
             state.example_interthread = *handler_state.lock().unwrap();
             *state_rwlock.write().unwrap() = state;
         }
@@ -146,9 +148,6 @@ fn main() {
 
         let delta_time =
             ((now - last) * 1000) as f64 / timer_subsystem.performance_frequency() as f64;
-
-        log::debug!("delta_time: {delta_time}");
-        log::debug!("loose_i: {loose_i}");
 
         loose_i = loose_i + (delta_time / 10.0);
         let i = (loose_i % 255.0).floor() as u8;
