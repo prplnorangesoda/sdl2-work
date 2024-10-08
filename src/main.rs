@@ -83,11 +83,21 @@ fn main() {
 
         let copied_state = handler_state.clone();
         let init_event_handler = |handler: &mut EventHandler| {
+            let ref1 = copied_state.clone();
+            let ref2 = ref1.clone();
+
             handler.register_handler_keydown(Box::new(move |event| {
-                let mut numb = copied_state
-                    .lock()
-                    .expect("should be possible to grab state");
+                if event.repeat {
+                    return;
+                }
+                let mut numb = ref1.lock().expect("should be possible to grab state");
                 *numb += 1;
+                // whatever
+                dbg!(event);
+            }));
+            handler.register_handler_keyup(Box::new(move |event| {
+                let mut numb = ref2.lock().expect("should be possible to grab state");
+                *numb -= 1;
                 // whatever
                 dbg!(event);
             }));
@@ -178,7 +188,10 @@ fn main() {
                     scancode,
                     keymod,
                     repeat,
-                } => {}
+                } => event_handler
+                    .read()
+                    .expect("should be able to get read lock")
+                    .handle_key_up(timestamp, window_id, keycode, scancode, keymod, repeat),
                 _ => {}
             }
         }
