@@ -7,6 +7,7 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use simple_logger::SimpleLogger;
 use std::sync::Arc;
+use std::sync::Mutex;
 use std::sync::RwLock;
 use std::thread;
 use std::time::Duration;
@@ -15,6 +16,7 @@ pub mod eventhandler;
 
 #[derive(Clone, Debug)]
 struct AppState {
+    example_interthread: u64,
     should_shutdown: bool,
     current_iter: u64,
 }
@@ -22,6 +24,7 @@ struct AppState {
 impl Default for AppState {
     fn default() -> Self {
         AppState {
+            example_interthread: 0,
             should_shutdown: false,
             current_iter: 0,
         }
@@ -31,6 +34,7 @@ impl Default for AppState {
 fn update(state: &AppState) -> AppState {
     log::trace!("Current update iteration: {0}", state.current_iter);
     AppState {
+        example_interthread: state.example_interthread,
         should_shutdown: false,
         current_iter: (state.current_iter + 1) % u64::MAX,
     }
@@ -72,14 +76,22 @@ fn main() {
     let extra_handler = event_handler.clone();
 
     let game_thread = thread::spawn(move || {
-        fn init_event_handler(handler: &mut EventHandler) {
-            handler.register_handler_keydown(Box::new(|event| {
+        let state_rwlock = extra_state;
+        let handler_rwlock = extra_handler;
+
+        let handler_state = Arc::new(Mutex::new(0u64));
+
+        let copied_state = handler_state.clone();
+        let init_event_handler = |handler: &mut EventHandler| {
+            handler.register_handler_keydown(Box::new(move |event| {
+                let mut numb = copied_state
+                    .lock()
+                    .expect("should be possible to grab state");
+                *numb += 1;
                 // whatever
                 dbg!(event);
             }));
-        }
-        let state_rwlock = extra_state;
-        let handler_rwlock = extra_handler;
+        };
 
         init_event_handler(
             &mut handler_rwlock
@@ -88,13 +100,15 @@ fn main() {
         );
         'thread_inner: loop {
             thread::sleep(Duration::from_nanos(16_666_667));
-            let state = {
+            let mut state = {
                 let state = state_rwlock.read().unwrap();
                 if state.should_shutdown {
                     break 'thread_inner;
                 }
                 update(&state)
             };
+            dbg!(&state);
+            state.example_interthread = *handler_state.lock().unwrap();
             *state_rwlock.write().unwrap() = state;
         }
     });

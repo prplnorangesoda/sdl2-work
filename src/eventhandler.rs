@@ -5,30 +5,40 @@ pub struct KeyDownEventInfo {}
 
 type KeyDownFn = Box<dyn Fn(KeyDownEventInfo) -> () + Send + Sync>;
 
-pub enum HandlerFn {
-    KeyDown(KeyDownFn),
+pub struct HandlerFns {
+    pub inner_keydowns: Vec<KeyDownFn>,
+}
+
+impl Default for HandlerFns {
+    fn default() -> Self {
+        Self {
+            inner_keydowns: Vec::new(),
+        }
+    }
 }
 pub struct EventHandler {
-    inner_handlers: Vec<HandlerFn>,
+    inner_handlers: HandlerFns,
 }
 
 // STATIC
 impl EventHandler {
     pub fn new() -> Self {
-        EventHandler {
-            inner_handlers: Vec::new(),
-        }
+        Self::default()
     }
 }
 impl Default for EventHandler {
     fn default() -> Self {
-        Self::new()
+        EventHandler {
+            inner_handlers: HandlerFns::default(),
+        }
     }
 }
 
 // METHODS
 impl EventHandler {
-    pub fn register_handler_keydown(&mut self, callback: KeyDownFn) {}
+    pub fn register_handler_keydown(&mut self, callback: KeyDownFn) {
+        self.inner_handlers.inner_keydowns.push(callback);
+    }
     pub fn handle_key_down(
         &self,
         timestamp: u32,
@@ -39,6 +49,8 @@ impl EventHandler {
         repeat: bool,
     ) {
         log::info!("key down");
-        dbg!(timestamp, window_id, keycode, scancode, keymod, repeat);
+        for callback in self.inner_handlers.inner_keydowns.iter() {
+            callback(KeyDownEventInfo {})
+        }
     }
 }
