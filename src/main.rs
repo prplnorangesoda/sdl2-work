@@ -1,5 +1,6 @@
 extern crate sdl2;
 
+use eventhandler::EventHandler;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -9,6 +10,8 @@ use std::sync::Arc;
 use std::sync::RwLock;
 use std::thread;
 use std::time::Duration;
+
+pub mod eventhandler;
 
 #[derive(Clone, Debug)]
 struct AppState {
@@ -52,25 +55,37 @@ fn main() {
         .build()
         .unwrap();
 
+    // initialize canvas
     let mut canvas = window.into_canvas().build().unwrap();
-
-    canvas.set_draw_color(Color::RGB(0, 255, 255));
-    canvas.clear();
-    canvas.present();
+    {
+        canvas.set_draw_color(Color::RGB(0, 255, 255));
+        canvas.clear();
+        canvas.present();
+    }
 
     let default_state = AppState::default();
     let state = Arc::new(RwLock::new(default_state));
 
-    let extra_state = state.clone();
+    let event_handler = Arc::new(RwLock::new(eventhandler::EventHandler::new()));
 
-    let caskaydia_font = font_ctx
-        .load_font(
-            "/usr/share/fonts/cascadiacode/CaskaydiaCoveNerdFont-SemiBold.ttf",
-            14,
-        )
-        .unwrap();
+    let extra_state = state.clone();
+    let extra_handler = event_handler.clone();
+
     let game_thread = thread::spawn(move || {
+        fn init_event_handler(handler: &mut EventHandler) {
+            handler.register_handler_keydown(Box::new(|event| {
+                // whatever
+                dbg!(event);
+            }));
+        }
         let state_rwlock = extra_state;
+        let handler_rwlock = extra_handler;
+
+        init_event_handler(
+            &mut handler_rwlock
+                .write()
+                .expect("Should be able to get handler write lock"),
+        );
         'thread_inner: loop {
             thread::sleep(Duration::from_nanos(16_666_667));
             let state = {
@@ -83,16 +98,21 @@ fn main() {
             *state_rwlock.write().unwrap() = state;
         }
     });
+
+    let caskaydia_font = font_ctx
+        .load_font(
+            "/usr/share/fonts/cascadiacode/CaskaydiaCoveNerdFont-SemiBold.ttf",
+            14,
+        )
+        .unwrap();
+    let texture_creator = canvas.texture_creator();
+
     // the render thread loop
 
     let mut event_pump = sdl_context.event_pump().unwrap();
-
     let mut now = timer_subsystem.performance_counter();
     let mut last;
     let mut loose_i: f64 = 0.0;
-
-    let texture_creator = canvas.texture_creator();
-
     let mut frame_count: u128 = 0;
     'running: loop {
         frame_count += 1;
@@ -126,6 +146,25 @@ fn main() {
                     game_thread.join().unwrap();
                     break 'running;
                 }
+                Event::KeyDown {
+                    timestamp,
+                    window_id,
+                    keycode,
+                    scancode,
+                    keymod,
+                    repeat,
+                } => event_handler
+                    .read()
+                    .expect("should be able to get read lock")
+                    .handle_key_down(timestamp, window_id, keycode, scancode, keymod, repeat),
+                Event::KeyUp {
+                    timestamp,
+                    window_id,
+                    keycode,
+                    scancode,
+                    keymod,
+                    repeat,
+                } => {}
                 _ => {}
             }
         }
@@ -138,6 +177,8 @@ fn main() {
             ))
             .shaded(Color::RGB(255, 255, 255), Color::RGBA(0, 0, 0, 50))
             .unwrap();
+
+        drop(state);
 
         let font_surf2 = caskaydia_font
             .render(&format!(
