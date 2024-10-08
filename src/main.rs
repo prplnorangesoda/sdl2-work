@@ -1,3 +1,5 @@
+#![allow(unused)]
+#![deny(unsafe_code)]
 extern crate sdl2;
 
 use eventhandler::EventHandler;
@@ -6,12 +8,11 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use simple_logger::SimpleLogger;
-use std::sync::Arc;
-use std::sync::Mutex;
-use std::sync::RwLock;
+use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
 use std::time::Duration;
 
+pub mod debug;
 pub mod eventhandler;
 
 #[derive(Clone, Debug)]
@@ -83,8 +84,8 @@ fn main() {
 
         let copied_state = handler_state.clone();
         let init_event_handler = |handler: &mut EventHandler| {
-            let ref1 = copied_state.clone();
-            let ref2 = ref1.clone();
+            let ref1 = Arc::clone(&copied_state);
+            let ref2 = Arc::clone(&ref1);
 
             handler.register_handler_keydown(Box::new(move |event| {
                 if event.repeat {
@@ -197,51 +198,17 @@ fn main() {
         }
 
         let state = state.read().unwrap();
-        let font_surf = caskaydia_font
-            .render(&format!(
-                "Current game thread iteration: {0}",
-                state.current_iter
-            ))
-            .shaded(Color::RGB(255, 255, 255), Color::RGBA(0, 0, 0, 50))
-            .unwrap();
+        let mut debug = debug::DebugRenderer::new(&caskaydia_font);
+
+        let mut items = &mut debug.items;
+
+        items.insert("Current game tick", &state.current_iter);
+        items.insert("Current render frame", &frame_count);
+        items.insert("delta_time", &delta_time);
+
+        debug.render_to_canvas(&mut canvas);
 
         drop(state);
-
-        let font_surf2 = caskaydia_font
-            .render(&format!(
-                "Current render thread iteration: {0}",
-                frame_count
-            ))
-            .shaded(Color::RGB(255, 255, 255), Color::RGBA(0, 0, 0, 50))
-            .unwrap();
-        let font_surf3 = caskaydia_font
-            .render(&format!("delta_time: {0}", delta_time))
-            .shaded(Color::RGB(255, 255, 255), Color::RGBA(0, 0, 0, 50))
-            .unwrap();
-        let (wide1, tall1) = (font_surf.width(), font_surf.height());
-        let (wide2, tall2) = (font_surf2.width(), font_surf2.height());
-        let (wide3, tall3) = (font_surf3.width(), font_surf3.height());
-        log::trace!("Wide1: {wide1}, tall1: {tall1}");
-        log::trace!("Wide2: {wide2}, tall2: {tall2}");
-        log::trace!("Wide3: {wide3}, tall3: {tall3}");
-
-        let tex = texture_creator
-            .create_texture_from_surface(font_surf)
-            .unwrap();
-        let tex2 = texture_creator
-            .create_texture_from_surface(font_surf2)
-            .unwrap();
-        let tex3 = texture_creator
-            .create_texture_from_surface(font_surf3)
-            .unwrap();
-
-        let texture_rect = Rect::new(50, 50, wide1, tall1);
-        let texture_rect2 = Rect::new(50, 50 + i32::try_from(tall1).unwrap(), wide2, tall2);
-        let texture_rect3 = Rect::new(50, 50 + i32::try_from(tall1 + tall2).unwrap(), wide3, tall3);
-
-        canvas.copy(&tex, None, texture_rect).unwrap();
-        canvas.copy(&tex2, None, texture_rect2).unwrap();
-        canvas.copy(&tex3, None, texture_rect3).unwrap();
 
         canvas.present();
     }
