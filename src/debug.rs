@@ -7,25 +7,25 @@ use std::{
 /// A Minecraft-esque debug screen to render certain values.
 pub struct DebugRenderer<'a> {
     font: &'a Font<'a, 'a>,
-    pub items: BTreeMap<&'static str, &'a dyn Debug>,
 }
 
 impl<'a> DebugRenderer<'a> {
     pub fn new(font: &'a Font) -> Self {
-        Self {
-            font,
-            items: BTreeMap::new(),
-        }
+        Self { font }
     }
 
-    pub fn render_to_canvas(self, canvas: &mut Canvas<Window>) {
-        let len = self.items.len();
+    pub fn render_to_canvas<T: Debug>(
+        &self,
+        values: &BTreeMap<&'static str, T>,
+        canvas: &mut Canvas<Window>,
+    ) {
+        let len = values.len();
         if len == 0 {
             return;
         }
         let texture_creator = canvas.texture_creator();
         let mut offset = 0u32;
-        for item in self.items.into_iter() {
+        for item in values.iter() {
             let font_surf = self
                 .font
                 .render(&format!("{0}: {1:?}", item.0, item.1))

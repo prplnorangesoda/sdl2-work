@@ -8,6 +8,8 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use simple_logger::SimpleLogger;
+use std::collections::BTreeMap;
+use std::fmt::Debug;
 use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
 use std::time::Duration;
@@ -141,6 +143,9 @@ fn main() {
     let mut last;
     let mut loose_i: f64 = 0.0;
     let mut frame_count: u128 = 0;
+
+    let mut debug = debug::DebugRenderer::new(&caskaydia_font);
+    let mut debug_items: BTreeMap<&'static str, Box<dyn Debug>> = BTreeMap::new();
     'running: loop {
         frame_count += 1;
         last = now;
@@ -197,18 +202,14 @@ fn main() {
         }
 
         let state = state.read().unwrap();
-        let mut debug = debug::DebugRenderer::new(&caskaydia_font);
 
-        let mut items = &mut debug.items;
+        debug_items.insert("Current game tick", Box::new(state.current_iter));
+        debug_items.insert("Current render frame", Box::new(frame_count));
+        debug_items.insert("delta_time", Box::new(delta_time));
 
-        items.insert("Current game tick", &state.current_iter);
-        items.insert("Current render frame", &frame_count);
-        items.insert("delta_time", &delta_time);
-
-        debug.render_to_canvas(&mut canvas);
-
+        debug.render_to_canvas(&debug_items, &mut canvas);
+        debug_items.clear();
         drop(state);
-
         canvas.present();
     }
     log::info!("Bye, world!");
