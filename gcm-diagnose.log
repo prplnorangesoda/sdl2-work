@@ -1,0 +1,89 @@
+﻿Diagnose log at 2024-10-10T21:12:26Z
+
+AppPath: /usr/bin/git-credential-manager
+InstallDir: /usr/lib/share/git-credential-manager-core/
+Version: 2.4.1+dc5101f53b9e3d9b6ee4af6e3537e87efc604480
+
+------------
+Diagnostic: Environment
+Skipped: False
+Success: True
+Exception: None
+Log:
+OSType: Linux
+OSVersion: Arch Linux
+Reading environment variables... OK
+ Variables:
+HOME=/home/lucy
+QT_WAYLAND_RECONNECT=1
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+MEMORY_PRESSURE_WATCH=/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/session.slice/plasma-plasmashell.service/memory.pressure
+XDG_SESSION_TYPE=wayland
+XDG_DATA_DIRS=/home/lucy/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
+KDE_FULL_SESSION=true
+SYSTEMD_EXEC_PID=1382
+ICEAUTHORITY=/run/user/1000/iceauth_pXUvle
+JOURNAL_STREAM=9:21538
+XDG_RUNTIME_DIR=/run/user/1000
+MUFFIN_NO_SHADOWS=1
+XDG_CONFIG_DIRS=/home/lucy/.config/kdedefaults:/etc/xdg
+KDE_SESSION_VERSION=6
+DESKTOP_SESSION=plasma
+DEBUGINFOD_URLS=https://debuginfod.archlinux.org 
+XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+KDE_SESSION_UID=1000
+KITTY_PUBLIC_KEY=1:YQ#DTu>5Ph(L1bpfSW+^VlTHX`tco9VZBQ1kz2_P
+KITTY_WINDOW_ID=1
+LOGNAME=lucy
+LANG=en_US.UTF-8
+MAIL=/var/spool/mail/lucy
+GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/lucy/.gtkrc-2.0:/home/lucy/.config/gtkrc-2.0
+KITTY_PID=3809
+XDG_CURRENT_DESKTOP=KDE
+XDG_SESSION_DESKTOP=KDE
+SHELL=/bin/fish
+GTK_RC_FILES=/etc/gtk/gtkrc:/home/lucy/.gtkrc:/home/lucy/.config/gtkrc
+MANAGERPID=1180
+XDG_MENU_PREFIX=plasma-
+KDE_APPLICATIONS_AS_SCOPE=1
+USER=lucy
+DISPLAY=:1
+INVOCATION_ID=63c34d34f08d4f62a0aadecfe8d453a8
+MEMORY_PRESSURE_WRITE=c29tZSAyMDAwMDAgMjAwMDAwMAA=
+COLORTERM=truecolor
+XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session1
+TERM=xterm-kitty
+WAYLAND_DISPLAY=wayland-0
+SHLVL=1
+TERMINFO=/usr/lib/kitty/terminfo
+PATH=/home/lucy/.cargo/bin:/home/lucy/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/var/lib/flatpak/exports/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/usr/lib/rustup/bin
+KITTY_INSTALLATION_DIR=/usr/lib/kitty
+MOTD_SHOWN=pam
+XDG_SEAT=seat0
+XAUTHORITY=/run/user/1000/xauth_yamqti
+PWD=/home/lucy/code/sdl2-work
+XDG_VTNR=1
+GIT_TRACE2_PARENT_SID=fa8e955a-eb66-44f6-8d64-cc863e739d63
+XDG_SESSION_ID=2
+XDG_SESSION_CLASS=user
+PAM_KWALLET5_LOGIN=/run/user/1000/kwallet5.socket
+QT_AUTO_SCREEN_SCALE_FACTOR=0
+SESSION_MANAGER=local/arch-linux-desktop:@/tmp/.ICE-unix/1366,unix/arch-linux-desktop:/tmp/.ICE-unix/1366
+
+
+------------
+Diagnostic: File system
+Skipped: False
+Success: True
+Exception: None
+Log:
+Temporary directory is '/tmp/'...
+Checking basic file I/O...
+Writing to temporary file '/tmp/f1f1432b94c1b1c72d3b345a'... OK
+Reading from temporary file '/tmp/f1f1432b94c1b1c72d3b345a'... OK
+Deleting temporary file '/tmp/f1f1432b94c1b1c72d3b345a'... OK
+Testing IFileSystem instance...
+UserHomePath: /home/lucy
+UserDataDirectoryPath: /home/lucy/.gcm
+GetCurrentDirectory(): /home/lucy/code/sdl2-work
+
