@@ -131,7 +131,14 @@ fn main() {
             "/usr/share/fonts/cascadiacode/CaskaydiaCoveNerdFont-SemiBold.ttf",
             14,
         )
-        .unwrap();
+        .unwrap_or_else(|_| {
+            return font_ctx
+                .load_font(
+                    "/home/lucy/.fonts/cascaydia/CaskaydiaCoveNerdFont-SemiBold.ttf",
+                    14,
+                )
+                .unwrap();
+        });
     let texture_creator = canvas.texture_creator();
 
     // the render thread loop
@@ -200,10 +207,11 @@ fn main() {
         let mut debug = debug::DebugRenderer::new(&caskaydia_font);
 
         let mut items = &mut debug.items;
-
+        let robto = &(loose_i % 255.0);
         items.insert("Current game tick", &state.current_iter);
         items.insert("Current render frame", &frame_count);
         items.insert("delta_time", &delta_time);
+        items.insert("Roberto", &robto);
 
         debug.render_to_canvas(&mut canvas);
 
