@@ -1,18 +1,22 @@
 #![allow(unused)]
 #![deny(unsafe_code)]
 extern crate sdl2;
+extern crate vector3;
 
 use eventhandler::EventHandler;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
+use sdl2::video::GLProfile;
 use simple_logger::SimpleLogger;
 use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
 use std::time::Duration;
+
+use vector3::Vector3;
 
 pub mod debug;
 pub mod eventhandler;
@@ -43,6 +47,15 @@ fn update(state: &AppState) -> AppState {
     }
 }
 
+fn find_sdl_gl_driver() -> Option<u32> {
+    for (index, item) in sdl2::render::drivers().enumerate() {
+        if item.name == "opengl" {
+            return Some(index as u32);
+        }
+    }
+    None
+}
+
 fn main() {
     SimpleLogger::new()
         .with_level(log::LevelFilter::Info)
@@ -56,19 +69,22 @@ fn main() {
     let timer_subsystem = sdl_context.timer().unwrap();
     let font_ctx = sdl2::ttf::init().unwrap();
 
+    let gl_attr = video_subsystem.gl_attr();
+    gl_attr.set_context_profile(GLProfile::Core);
+    gl_attr.set_context_version(3, 3);
+
     let window = video_subsystem
-        .window("rust-sdl2 demo", 800, 600)
-        .position_centered()
+        .window("Window", 800, 600)
+        .opengl()
         .build()
         .unwrap();
 
-    // initialize canvas
-    let mut canvas = window.into_canvas().build().unwrap();
-    {
-        canvas.set_draw_color(Color::RGB(0, 255, 255));
-        canvas.clear();
-        canvas.present();
-    }
+    // Unlike the other example above, nobody created a context for your window, so you need to create one.
+    let ctx = window.gl_create_context().unwrap();
+    gl::load_with(|name| video_subsystem.gl_get_proc_address(name) as *const _);
+
+    debug_assert_eq!(gl_attr.context_profile(), GLProfile::Core);
+    debug_assert_eq!(gl_attr.context_version(), (3, 3));
 
     let default_state = AppState::default();
     let state = Arc::new(RwLock::new(default_state));
@@ -145,7 +161,7 @@ fn main() {
     let mut frame_count: u128 = 0;
 
     let mut debug = debug::DebugRenderer::new(&caskaydia_font);
-    let mut debug_items: BTreeMap<&'static str, Box<dyn Debug>> = BTreeMap::new();
+    let mut debug_items: BTreeMap<&'static str, &dyn Debug> = BTreeMap::new();
     'running: loop {
         frame_count += 1;
         last = now;
@@ -201,15 +217,17 @@ fn main() {
             }
         }
 
-        let state = state.read().unwrap();
+        let state_lock = state.read().unwrap();
 
-        debug_items.insert("Current game tick", Box::new(state.current_iter));
-        debug_items.insert("Current render frame", Box::new(frame_count));
-        debug_items.insert("delta_time", Box::new(delta_time));
+        debug_items.insert("Current game tick", &state_lock.current_iter);
+        debug_items.insert("Current render frame", &frame_count);
+        debug_items.insert("delta_time", &delta_time);
 
         debug.render_to_canvas(&debug_items, &mut canvas);
         debug_items.clear();
-        drop(state);
+        // ugly: signify to compiler that debug_items is clear
+        debug_items = debug_items.into_iter().map(|_| unreachable!()).collect();
+        drop(state_lock);
         canvas.present();
     }
     log::info!("Bye, world!");

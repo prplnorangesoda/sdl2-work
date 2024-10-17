@@ -40,10 +40,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "gl"
+version = "0.14.0"
+source = "git+https://github.com/bjz/gl-rs#1cd256c7b59a0baac8af7863ca0f768bfc1a4b51"
+dependencies = [
+ "gl_generator",
+]
+
+[[package]]
+name = "gl_generator"
+version = "0.14.1"
+source = "git+https://github.com/bjz/gl-rs#1cd256c7b59a0baac8af7863ca0f768bfc1a4b51"
+dependencies = [
+ "khronos_api",
+ "log",
+ "xml-rs",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
+
+[[package]]
+name = "khronos_api"
+version = "3.2.0"
+source = "git+https://github.com/bjz/gl-rs#1cd256c7b59a0baac8af7863ca0f768bfc1a4b51"
 
 [[package]]
 name = "lazy_static"
@@ -130,9 +153,11 @@ dependencies = [
 name = "sdl2-work"
 version = "0.1.0"
 dependencies = [
+ "gl",
  "log",
  "sdl2",
  "simple_logger",
+ "vector3",
 ]
 
 [[package]]
@@ -218,6 +243,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e91b56cd4cadaeb79bbf1a5645f6b4f8dc5bde8834ad5894a8db35fda9efa1fe"
 
 [[package]]
+name = "vector3"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "082cc5c946170e905214fe5cac2b9bbb81d790ae632ee7b8c7d736d59cd0827e"
+
+[[package]]
 name = "version-compare"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -288,3 +319,9 @@ name = "windows_x86_64_msvc"
 version = "0.48.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
+
+[[package]]
+name = "xml-rs"
+version = "0.8.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af4e2e2f7cba5a093896c1e150fbfe177d1883e7448200efb81d40b9d339ef26"

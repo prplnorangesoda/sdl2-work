@@ -7,3 +7,7 @@ edition = "2021"
 log = "0.4.22"
 sdl2 = {version = "0.37.0", features = ["gfx", "ttf"]}
 simple_logger = "5.0.0"
+vector3 = "1.1.4"
+
+[dependencies.gl]
+git = "https://github.com/bjz/gl-rs"

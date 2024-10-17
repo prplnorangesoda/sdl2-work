@@ -14,11 +14,12 @@ impl<'a> DebugRenderer<'a> {
         Self { font }
     }
 
-    pub fn render_to_canvas<T: Debug>(
+    pub fn render_to_canvas(
         &self,
-        values: &BTreeMap<&'static str, T>,
+        values: &BTreeMap<&'static str, &dyn Debug>,
         canvas: &mut Canvas<Window>,
-    ) {
+    )  
+    {
         let len = values.len();
         if len == 0 {
             return;
