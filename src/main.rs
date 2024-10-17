@@ -246,7 +246,7 @@ fn main() {
         if delta_time < frame_time {
             continue 'running;
         }
-         passed frame cap, good to go
+        // passed frame cap, good to go
 
         loose_i = loose_i + (delta_time / 10.0);
         let i = (loose_i % 255.0).floor() as u8;
