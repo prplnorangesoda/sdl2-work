@@ -1,5 +1,4 @@
 #![allow(unused)]
-#![deny(unsafe_code)]
 extern crate sdl2;
 extern crate vector3;
 
@@ -150,7 +149,6 @@ fn main() {
             14,
         )
         .unwrap();
-    let texture_creator = canvas.texture_creator();
 
     // the render thread loop
 
@@ -172,8 +170,12 @@ fn main() {
 
         loose_i = loose_i + (delta_time / 10.0);
         let i = (loose_i % 255.0).floor() as u8;
-        canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
-        canvas.clear();
+        //canvas.set_draw_color(Color::RGB(i, 64, 255 - i));
+        unsafe {
+            gl::ClearColor(f32::from(i) / 255.0, 0.3, 1.0 - (f32::from(i) / 255.0), 1.0);
+            gl::Clear(gl::COLOR_BUFFER_BIT);
+        }
+        window.gl_swap_window();
 
         for event in event_pump.poll_iter() {
             match event {
@@ -223,12 +225,12 @@ fn main() {
         debug_items.insert("Current render frame", &frame_count);
         debug_items.insert("delta_time", &delta_time);
 
-        debug.render_to_canvas(&debug_items, &mut canvas);
+        //        debug.render_to_canvas(&debug_items, &mut canvas);
         debug_items.clear();
         // ugly: signify to compiler that debug_items is clear
         debug_items = debug_items.into_iter().map(|_| unreachable!()).collect();
         drop(state_lock);
-        canvas.present();
+        // canvas.present();
     }
     log::info!("Bye, world!");
 }
