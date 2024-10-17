@@ -18,8 +18,7 @@ impl<'a> DebugRenderer<'a> {
         &self,
         values: &BTreeMap<&'static str, &dyn Debug>,
         canvas: &mut Canvas<Window>,
-    )  
-    {
+    ) {
         let len = values.len();
         if len == 0 {
             return;
@@ -35,7 +34,6 @@ impl<'a> DebugRenderer<'a> {
 
             let (wide, tall) = (font_surf.width(), font_surf.height());
             let position_scale = Rect::new(50, 50 + i32::try_from(offset).unwrap(), wide, tall);
-
             let texture = font_surf.as_texture(&texture_creator).unwrap();
             canvas.copy(&texture, None, position_scale);
             offset += tall;
