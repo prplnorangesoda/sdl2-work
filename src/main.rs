@@ -183,7 +183,6 @@ fn main() {
                 .unwrap();
         });
     let texture_creator = canvas.texture_creator();
-        .unwrap();
 
     unsafe {
         init_vertex_buffer();
