@@ -23,6 +23,7 @@ use vector3::Vector3;
 
 pub mod debug;
 pub mod eventhandler;
+pub mod gl_helpers;
 
 #[derive(Clone, Debug)]
 struct AppState {
@@ -59,24 +60,6 @@ fn find_sdl_gl_driver() -> Option<u32> {
     None
 }
 
-static mut BUFFER_HOLDER: u32 = 0;
-
-const VERTEX_POSITIONS: &[f32] = &[
-    0.75, 0.75, 0.0, 1.0, 0.75, -0.75, 0.0, 1.0, -0.75, -0.75, 0.0, 1.0,
-];
-unsafe fn init_vertex_buffer() {
-    gl::GenBuffers(1, std::ptr::addr_of_mut!(BUFFER_HOLDER) as *mut u32);
-
-    gl::BindBuffer(gl::ARRAY_BUFFER, BUFFER_HOLDER);
-    let ew = VERTEX_POSITIONS;
-    gl::BufferData(
-        gl::ARRAY_BUFFER,
-        std::mem::size_of::<[f32; 12]>() as isize,
-        std::ptr::addr_of!(ew) as *const c_void,
-        gl::STATIC_DRAW,
-    );
-    gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-}
 fn main() {
     SimpleLogger::new()
         .with_level(log::LevelFilter::Info)
@@ -177,7 +160,7 @@ fn main() {
         .unwrap();
 
     unsafe {
-        init_vertex_buffer();
+        gl_helpers::init_vertex_buffer();
     }
 
     // the render thread loop
