@@ -157,7 +157,15 @@ fn main() {
             "/usr/share/fonts/cascadiacode/CaskaydiaCoveNerdFont-SemiBold.ttf",
             14,
         )
-        .unwrap();
+        .unwrap_or_else(|_| {
+            return font_ctx
+                .load_font(
+                    "/home/lucy/.fonts/cascaydia/CaskaydiaCoveNerdFont-SemiBold.ttf",
+                    14,
+                )
+                .unwrap();
+        });
+    let texture_creator = canvas.texture_creator();
 
     unsafe {
         gl_helpers::init_vertex_buffer();
